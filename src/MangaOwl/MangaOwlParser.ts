@@ -244,7 +244,6 @@ export class Parser {
             )
         }
     }
-    console.log(`Results are ${JSON.stringify(results)}`)
         return results
     }
     parseTimesFromTilesResults($: CheerioSelector): MangaTile[] {
