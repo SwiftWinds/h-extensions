@@ -154,7 +154,10 @@ export class Parser {
             var chapterAElement = $('a',obj);
             var url = this.substringAfterFirst(".com", chapterAElement?.attr("data-href")?.replace("/reader/reader/", "/reader/"));
             var name = $('label',chapterAElement).text().trim();
-            var dateParts = $("small:last-of-type", obj).first().text()
+            var release_date = $("small:last-of-type", obj).first().text().split('/')
+            var month = Number(release_date[0])
+            var day = Number(release_date[1])
+            var year = Number(release_date[2])
                 const match = name.match(this.chapterTitleRegex);
                 let chapNum;
                 if (match && !isNaN(Number(match[1]))) {
@@ -172,7 +175,7 @@ export class Parser {
             mangaId: mangaId,
             name: this.encodeText(name) ? name : undefined, 
             chapNum: chapNum ?? 0,
-            time: new Date(Number(dateParts)),
+            time: new Date(`${year}/${month}/${day}`),
             langCode: LanguageCode.ENGLISH
         }));
         }
@@ -239,7 +242,7 @@ export class Parser {
                 createMangaTile({
                     id,
                     image,
-                    title: createIconText({ text: title }),
+                    title: createIconText({ text: this.decodeHTMLEntity(title) }),
                 })
             )
         }
@@ -250,63 +253,42 @@ export class Parser {
         const results: MangaTile[] = []
         for (const obj of $('div.col-md-2').toArray()) {
             const id = $(obj).attr("data-id") ?? ''
-            console.log(id)
             const title = $(obj).attr("data-title") ?? ''
-            console.log(title)
             const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
-            console.log(image)
             const timeneeded = $(obj).attr("data-chapter-time") ?? ""
-            console.log(timeneeded)
             results.push(
                 createMangaTile({
                     id,
                     image,
-                    title: createIconText({ text: title }),
+                    title: createIconText({ text: this.decodeHTMLEntity(title) }),
                     primaryText: createIconText({
                         text: timeneeded 
                     })
                 }))
     }
-        console.log(`Results are ${JSON.stringify(results)}`)
         return results
     }
     parseTimesFromTiles($: CheerioStatic, dateTime: Date) {
         const tiles = this.parseTimesFromTilesResults($) 
-        console.log(`Pass 1 ${JSON.stringify(tiles)}`)
         const ids: string[] = [];
-        console.log(`Pass 2 ${ids}`)
         for (let i = 0; i < tiles.length; i++) {
             const tile = tiles[i];
-            console.log(`Pass 3 ${JSON.stringify(tiles[i])}`)
             if (tile?.primaryText) {
-                console.log(`Pass 4 ${JSON.stringify(tile?.primaryText)}`)
                 const parts = tile.primaryText.text.split(" ");
-                console.log(`Pass 5 ${parts}`)
                 if (parts.length === 2) {
                     const dayPart = parts[0]
-                    console.log(`Pass 6 ${dayPart}`)
                     const daySubparts = dayPart?.split("-")
-                    console.log(`Pass 7 ${daySubparts}`)
                     if (daySubparts?.length === 3) {
                         const year = Number(daySubparts[0])
-                        console.log(`Pass 8 ${year}`)
                         const month = Number(daySubparts[1]) - 1
-                        console.log(`Pass 9 ${month}`)
                         const day = Number(daySubparts[2])
-                        console.log(`Pass 10 ${day}`)
                         const timePart = parts[1];
-                        console.log(`Pass 11 ${timePart}`)
                         const timeSubparts = timePart?.split(":")
-                        console.log(`Pass 12 ${timeSubparts}`)
                         if (timeSubparts?.length === 2) {
                             const hour = Number(timeSubparts[0])
-                            console.log(`Pass 13 ${hour}`)
                             const minute = Number(timeSubparts[1])
-                            console.log(`Pass 14 ${minute}`)
-                            const dateObj = new Date(Date.UTC(year, month, day, hour, minute));
-                            console.log(`Pass 15 ${dateObj}`)
+                            const dateObj = new Date(year, month, day, hour, minute);
                             if (dateObj > dateTime) {
-                                console.log(`Pass 16 ${dateObj > dateTime}`)
                                 ids.push(tile.id);
                             }
                         }
@@ -315,10 +297,10 @@ export class Parser {
             }
         }
         if (ids.length !== 0) {
-            console.log(`Pass 17 pass it`)
+            console.log(`Got Latest Chapter`)
             return ids;
         } else {
-            console.log(`Pass 18 did not pass it`)
+            console.log(`Did not get Latest Chapter`)
             return null;
         }
     }
