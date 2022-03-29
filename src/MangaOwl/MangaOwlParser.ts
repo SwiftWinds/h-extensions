@@ -1,7 +1,6 @@
 import {Chapter,     
     ChapterDetails,
     HomeSection,
-    HomeSectionType,
     LanguageCode, 
     Manga, 
     MangaTile, 
@@ -11,17 +10,18 @@ import {Chapter,
 export class Parser {
     private readonly chapterTitleRegex = /Chapter ([\d.]+)/i
     public readonly chapterIdRegex = /\/reader\/reader\/\d+\/(\d+)/i
+
     decodeHTMLEntity(str: string): string {
         return str.replace(/&#(\d+);/g, function (_match, dec) {
             return String.fromCharCode(dec);
         })
     }
 
-    async parseHomeSections($: CheerioStatic, sectionCallback: (section: HomeSection) => void, _source: any): Promise<void> {
-        const section1 = createHomeSection({ id: '1', title: 'Must Read Today', type: HomeSectionType.singleRowNormal,})
-        const section2 = createHomeSection({ id: '2', title: 'New Releases',      type: HomeSectionType.singleRowNormal,})
-        const section3 = createHomeSection({ id: '3', title: 'Latest',    type: HomeSectionType.singleRowNormal,})
-        const section4 = createHomeSection({ id: '4', title: 'Most Popular Manga',    type: HomeSectionType.singleRowNormal,})
+    async parseHomeSections($: CheerioStatic, popularC: CheerioStatic, newrelC: CheerioStatic, latestC: CheerioStatic,sectionCallback: (section: HomeSection) => void, _source: any): Promise<void> {
+        const section1 = createHomeSection({ id: '1', title: 'Must Read Today', view_more: false})
+        const section2 = createHomeSection({ id: '2', title: 'New Releases', view_more: true})
+        const section3 = createHomeSection({ id: '3', title: 'Latest', view_more: true})
+        const section4 = createHomeSection({ id: '4', title: 'Most Popular Manga', view_more: true})
 
         const popular : MangaTile[] = []
         const hot     : MangaTile[] = []
@@ -29,20 +29,22 @@ export class Parser {
         const newManga: MangaTile[] = []
 
         const arrMustRead = $('div:nth-child(2) div.comicView').toArray()
-        const arrNewRel = $('div.general div.comicView').toArray()
-        const arrLatest = $('div.lastest div.comicView').toArray()
-        const arrPopular = $('div:nth-child(5) div.comicView').toArray()
+        const arrNewRel = newrelC('div.col-md-2').toArray()
+        const arrLatest = latestC('div.col-md-2').toArray()
+        const arrPopular = popularC('div.col-md-2').toArray()
 
 
         for (const obj of arrMustRead) {
             const id = $(obj).attr("data-id") ?? ''
             const title = $(obj).attr("data-title") ?? ''
             const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
+            const subTitle = $('.tray-item', obj).text().trim() ?? ''
             latest.push(
                 createMangaTile({
                     id,
                     image,
                     title: createIconText({ text:  this.decodeHTMLEntity(title) }),
+                    subtitleText: createIconText({ text: subTitle }),
                 })
             )
         }
@@ -50,14 +52,16 @@ export class Parser {
         sectionCallback(section1)
 
         for (const obj of arrNewRel) {
-            const id = $(obj).attr("data-id") ?? ''
-            const title = $(obj).attr("data-title") ?? ''
-            const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
+            const id = newrelC(obj).attr("data-id") ?? ''
+            const title = newrelC(obj).attr("data-title") ?? ''
+            const image = newrelC('div[data-background-image]', obj).attr('data-background-image') ?? ''
+            const subTitle = $('.tray-item', obj).text().trim() ?? ''
             popular.push(
                 createMangaTile({
                     id,
                     image,
                     title: createIconText({ text:  this.decodeHTMLEntity(title) }),
+                    subtitleText: createIconText({ text: subTitle }),
                 })
             )
         }
@@ -65,14 +69,16 @@ export class Parser {
         sectionCallback(section2)
 
         for (const obj of arrLatest) {
-            const id = $(obj).attr("data-id") ?? ''
-            const title = $(obj).attr("data-title") ?? ''
-            const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
+            const id = latestC(obj).attr("data-id") ?? ''
+            const title = latestC(obj).attr("data-title") ?? ''
+            const image = latestC('div[data-background-image]', obj).attr('data-background-image') ?? ''
+            const subTitle = $('.tray-item', obj).text().trim() ?? ''
             hot.push(
                 createMangaTile({
                     id,
                     image,
                     title: createIconText({ text:  this.decodeHTMLEntity(title) }),
+                    subtitleText: createIconText({ text: subTitle }),
                 })
             )
         }
@@ -80,14 +86,16 @@ export class Parser {
         sectionCallback(section3)
 
         for (const obj of arrPopular) {
-            const id = $(obj).attr("data-id") ?? ''
-            const title = $(obj).attr("data-title") ?? ''
-            const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
+            const id = popularC(obj).attr("data-id") ?? ''
+            const title = popularC(obj).attr("data-title") ?? ''
+            const image = popularC('div[data-background-image]', obj).attr('data-background-image') ?? ''
+            const subTitle = $('.tray-item', obj).text().trim() ?? ''
             newManga.push(
                 createMangaTile({
                     id,
                     image,
                     title: createIconText({ text:  this.decodeHTMLEntity(title) }),
+                    subtitleText: createIconText({ text: subTitle }),
                 })
             )
         }
@@ -118,7 +126,7 @@ export class Parser {
         for (let obj of $(selector).toArray()) {
             let page = this.getImageSrc($(obj))
             if (!page) {
-                throw new Error(`Could not parse page for ${mangaId}/${chapterId}`)
+                throw new Error(`Could not parse page for ${chapterId}`)
             }
 
             pages.push(page)
@@ -127,7 +135,7 @@ export class Parser {
             id: chapterId,
             mangaId: mangaId,
             pages: pages,
-            longStrip: false
+            longStrip: true
         })
     }
     findTextAndReturnRemainder(target: any, variable: any){
@@ -153,7 +161,7 @@ export class Parser {
         for (const obj of arrChapters) {
             var chapterAElement = $('a',obj);
             var url = this.substringAfterFirst(".com", chapterAElement?.attr("data-href")?.replace("/reader/reader/", "/reader/"));
-            var name = $('label',chapterAElement).text().trim();
+            var name = $('label',chapterAElement).text().trim() ?? 'No Chpater Name';
             var release_date = $("small:last-of-type", obj).first().text().split('/')
             var month = Number(release_date[0])
             var day = Number(release_date[1])
@@ -173,7 +181,7 @@ export class Parser {
             chapters.push(createChapter({
             id: `${url}?tr=${tr}&s=${s}`, 
             mangaId: mangaId,
-            name: this.encodeText(name) ? name : undefined, 
+            name: this.encodeText(name), 
             chapNum: chapNum ?? 0,
             time: new Date(`${year}/${month}/${day}`),
             langCode: LanguageCode.ENGLISH
@@ -182,8 +190,8 @@ export class Parser {
         return chapters
     }
 
-    getPart($: CheerioStatic, partsArr: (string | null)[], index: number) {
-        const toAdd = $("span").remove().end().text().replace(/\s{2,}/, " ").trim();
+    getPart($: CheerioStatic, element: CheerioElement, partsArr: (string | null)[], index: number) {
+        const toAdd = $("span", element).remove().end().text().replace(/\s{2,}/, " ").trim();
         if (toAdd) {
             partsArr[index] = toAdd
         }
@@ -195,9 +203,38 @@ export class Parser {
         const image = $('img',details).attr('data-src') ?? $('img',details).attr('src') ?? 'https://paperback.moe/icons/logo-alt.svg'
         let desc = $("div.description").first().children().remove().end().text().replaceAll(/\s{2,}/g, " ").trim() ?? ''
         if (desc == '') desc = `No Decscription provided by the source (MangaOwl)`
-        const author = $("p.fexi_header_para a.author_link",details).first().text().trim();
-        const stu = $("p.fexi_header_para:contains('Status')",details).first().text().trim().replace(/STATUS:/gi,'');
+        let author = '';
+        let artist = ''
+        let status = ''
+        let views = ''
         const arrayTags: Tag[] = []
+        const rating = Number($("font.rating_scored").text().trim() || "0");
+        const info = $('p.fexi_header_para',details).toArray()
+        for (const obj of info) {
+            const label = $("span", obj).first().children().remove().end().text().replace(/\s{2,}/, " ").trim().toLowerCase();
+            switch (label) {
+                case "author":
+                    case "authors":
+                    case "author(s)":
+                        $("span", obj).remove().end().text().replace(/\s{2,}/, " ").trim();
+                        author = $(obj).text().trim()
+                        break;
+                    case "artist":
+                    case "artists":
+                    case "artist(s)":
+                        $("span", obj).remove().end().text().replace(/\s{2,}/, " ").trim();
+                        artist = $(obj).text().trim()
+                        break;
+                    case "views":
+                        $("span", obj).remove().end().text().replace(/\s{2,}/, " ").trim();
+                        views = $(obj).text().trim()
+                        break;
+                    case "status":
+                        $("span", obj).remove().end().text().replace(/\s{2,}/, " ").trim();
+                        status = $(obj).text().trim()
+                        break;
+            }
+        }
         const genres = $('div.col-xs-12.col-md-8.single-right-grid-right > p > a[href*=genres]',details).toArray()
         for (const obj of genres) {
             arrayTags.push({
@@ -206,15 +243,16 @@ export class Parser {
             })
         }
         const tagSections: TagSection[] = [createTagSection({ id: '0', label: 'genres', tags: arrayTags.map((x) => createTag(x)) })]
-        const status = source.parseStatus(stu)
 
         return createManga({
             id: mangaId,
             titles: [title],
             image,
-            rating: 0,
-            status,
+            rating: rating,
+            status: source.parseStatus(status),
+            views: Number(views),
             author,
+            artist,
             tags: tagSections,
             desc,
         })
@@ -237,18 +275,21 @@ export class Parser {
             const id = $(obj).attr("data-id") ?? ''
             const title = $(obj).attr("data-title") ?? ''
             const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
+            const subTitle = $('.tray-item', obj).text().trim() ?? ''
             if(id){
             results.push(
                 createMangaTile({
                     id,
                     image,
                     title: createIconText({ text: this.decodeHTMLEntity(title) }),
+                    subtitleText: createIconText({ text: subTitle }),
                 })
             )
         }
     }
         return results
     }
+
     parseTimesFromTilesResults($: CheerioSelector): MangaTile[] {
         const results: MangaTile[] = []
         for (const obj of $('div.col-md-2').toArray()) {
@@ -256,18 +297,18 @@ export class Parser {
             const title = $(obj).attr("data-title") ?? ''
             const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
             const timeneeded = $(obj).attr("data-chapter-time") ?? ""
-            results.push(
-                createMangaTile({
-                    id,
-                    image,
+            results.push({
+                    id: id,
+                    image: image,
                     title: createIconText({ text: this.decodeHTMLEntity(title) }),
                     primaryText: createIconText({
                         text: timeneeded 
                     })
-                }))
+            })
     }
         return results
     }
+
     parseTimesFromTiles($: CheerioStatic, dateTime: Date) {
         const tiles = this.parseTimesFromTilesResults($) 
         const ids: string[] = [];
@@ -287,7 +328,7 @@ export class Parser {
                         if (timeSubparts?.length === 2) {
                             const hour = Number(timeSubparts[0])
                             const minute = Number(timeSubparts[1])
-                            const dateObj = new Date(year, month, day, hour, minute);
+                            const dateObj = new Date(Date.UTC(year, month, day, hour, minute));
                             if (dateObj > dateTime) {
                                 ids.push(tile.id);
                             }
@@ -297,10 +338,8 @@ export class Parser {
             }
         }
         if (ids.length !== 0) {
-            console.log(`Got Latest Chapter`)
             return ids;
         } else {
-            console.log(`Did not get Latest Chapter`)
             return null;
         }
     }

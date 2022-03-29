@@ -17,16 +17,16 @@ import {
 
 import {Parser} from "./MangaOwlParser";
 import { URLBuilder } from './helper'
-const MangaOwlBase = "https://www.mangaowls.com"
+const MangaOwl_Base = "https://www.mangaowls.com"
 
 export const MangaOwlInfo: SourceInfo = {
     author: 'xOnlyFadi',
     description: 'Extension that pulls manga from MangaOwls',
     icon: 'icon.png',
     name: 'MangaOwls',
-    version: '2.4.4',
-    authorWebsite: 'https://github.com/nar1n',
-    websiteBaseURL: MangaOwlBase,
+    version: '3.0.0',
+    authorWebsite: 'https://github.com/xOnlyFadi',
+    websiteBaseURL: MangaOwl_Base,
     contentRating: ContentRating.ADULT,
     language: LanguageCode.ENGLISH,
     sourceTags: [
@@ -49,38 +49,91 @@ export abstract class MangaOwl extends Source {
     private readonly parser: Parser = new Parser();
 
     chapterDetailsSelector: string = "div.item img.owl-lazy"
-    
-    decodeHTMLEntity(str: string): string {
-        return str.replace(/&#(\d+);/g, function (_match, dec) {
-            return String.fromCharCode(dec);
-        })
-    }
+
     readonly requestManager = createRequestManager({
         requestsPerSecond: 3,
         requestTimeout: 30000,
     })
 
-   override getCloudflareBypassRequest() {
+    override getCloudflareBypassRequest() {
             return createRequestObject({
-            url: `${MangaOwlBase}/single/46862`,
+            url: `${MangaOwl_Base}/single/48021`,
             method: "GET",
         });
     }
 
-   override async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> {
+    override async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> {
         const options = createRequestObject({
-            url: `${MangaOwlBase}`,
+            url: `${MangaOwl_Base}`,
             method: 'GET'
         });
         let response = await this.requestManager.schedule(options, 1);
         this.CloudFlareError(response.status)
         let $ = this.cheerio.load(response.data);
-        return this.parser.parseHomeSections($, sectionCallback, this)
+
+        var options2 = createRequestObject({
+            url: `${MangaOwl_Base}/popular`,
+            method: 'GET'
+        });
+        var response2 = await this.requestManager.schedule(options2, 2)
+        const popular = this.cheerio.load(response2.data)
+        this.CloudFlareError(response2.status)
+
+        var options3 = createRequestObject({
+            url: `${MangaOwl_Base}/new_release`,
+            method: 'GET'
+        });
+        var response3 = await this.requestManager.schedule(options3, 2)
+        const new_release = this.cheerio.load(response3.data)
+        this.CloudFlareError(response3.status)
+
+        var options4 = createRequestObject({
+            url: `${MangaOwl_Base}/lastest`,
+            method: 'GET'
+        });
+        var response4 = await this.requestManager.schedule(options4, 2)
+        const lastest = this.cheerio.load(response4.data)
+        this.CloudFlareError(response4.status)
+        return this.parser.parseHomeSections($,popular,new_release,lastest, sectionCallback, this)
+    }
+
+    override async getViewMoreItems(homepageSectionId: string, metadata: any): Promise<PagedResults> {
+        let page = metadata?.page ?? 1
+        if (page == -1) return createPagedResults({ results: [], metadata: { page: -1 } })
+        let param = ''
+        switch (homepageSectionId) {
+            case '2':
+                param = `/new_release/${page}`
+                break
+            case '3':
+                param = `/lastest/${page}`
+                break
+            case '4':
+                param = `/popular/${page}`
+                break
+            default:
+                throw new Error(`Invalid homeSectionId | ${homepageSectionId}`)
+        }
+        const request = createRequestObject({
+            url: `${MangaOwl_Base}${param}`,
+            method: 'GET',
+        })
+
+        const response = await this.requestManager.schedule(request, 1)
+        const $ = this.cheerio.load(response.data)
+        const manga = this.parser.parseSearchResults($, this)
+
+        page++
+        if (manga.length < 36) page = -1
+        return createPagedResults({
+            results: manga,
+            metadata: { page: page }
+        })
     }
 
     override async getTags(): Promise<TagSection[]> {
         const options = createRequestObject({
-            url: `${MangaOwlBase}/search/1?search=`,
+            url: `${MangaOwl_Base}/search/1?search=`,
             method: 'GET'
         });
         let response = await this.requestManager.schedule(options, 1);
@@ -92,9 +145,10 @@ export abstract class MangaOwl extends Source {
             tags: this.parser.parseTags($)
         })];
     }
+
     async getMangaDetails(mangaId: string): Promise<Manga> {
         const options  = createRequestObject({
-            url: `${MangaOwlBase}/single/${mangaId}`,
+            url: `${MangaOwl_Base}/single/${mangaId}`,
             method: 'GET',
         });
         let response = await this.requestManager.schedule(options, 1);
@@ -102,9 +156,10 @@ export abstract class MangaOwl extends Source {
         let $ = this.cheerio.load(response.data);
         return this.parser.parseMangaDetails($, mangaId,this);
     }
+
     async getChapters(mangaId: string): Promise<Chapter[]> {
         const options = createRequestObject({
-            url: `${MangaOwlBase}/single/${mangaId}`,
+            url: `${MangaOwl_Base}/single/${mangaId}`,
             method: 'GET'
         });
         let response = await this.requestManager.schedule(options, 1);
@@ -112,9 +167,10 @@ export abstract class MangaOwl extends Source {
         let $ = this.cheerio.load(response.data);
         return this.parser.parseChapters($, mangaId, this);
     }
+
     async getChapterDetails(mangaId: string, chapterId: string): Promise<ChapterDetails> {
         const options = createRequestObject({
-            url: `${MangaOwlBase}${chapterId}`,
+            url: `${MangaOwl_Base}${chapterId}`,
             method: 'GET'
         });
         let response = await this.requestManager.schedule(options, 1);
@@ -134,7 +190,7 @@ export abstract class MangaOwl extends Source {
         const manga = this.parser.parseSearchResults($, this)
 
         page++
-        if (manga.length >= 36) page = -1
+        if (manga.length < 36) page = -1
 
         return createPagedResults({
             results: manga,
@@ -144,7 +200,7 @@ export abstract class MangaOwl extends Source {
 
     constructSearchRequest(page: number, query: SearchRequest): any {
         return createRequestObject({
-            url: new URLBuilder(MangaOwlBase)
+            url: new URLBuilder(MangaOwl_Base)
             .addPathComponent('search')
             .addPathComponent(page.toString())
             .addQueryParameter('search', encodeURIComponent(query?.title ?? ''))
@@ -161,6 +217,7 @@ export abstract class MangaOwl extends Source {
             method: 'GET',
         })
     }
+
     normalizeSearchQuery(query: any) {
         var query = query.toLowerCase();
         query = query.replace(/[àáạảãâầấậẩẫăằắặẳẵ]+/g, "a");
@@ -170,33 +227,12 @@ export abstract class MangaOwl extends Source {
         query = query.replace(/[ùúụủũưừứựửữ]+/g, "u");
         query = query.replace(/[ỳýỵỷỹ]+/g, "y");
         query = query.replace(/[đ]+/g, "d");
-        query = query.replace(/ /g,"%20");
-        query = query.replace(/%20/g, "%20");
+        query = query.replace(/ /g,"+");
+        query = query.replace(/%20/g, "+");
         return query;
         
     }
-        /**
-     * Parses a time string from a Madara source into a Date object.
-     * Copied from Madara.ts made by gamefuzzy
-     */
-         protected convertTime(timeAgo: string): Date {
-            let time: Date
-            let trimmed = Number((/\d*/.exec(timeAgo) ?? [])[0])
-            trimmed = trimmed == 0 && timeAgo.includes('a') ? 1 : trimmed
-            if (timeAgo.includes('mins') || timeAgo.includes('minutes') || timeAgo.includes('minute')) {
-                time = new Date(Date.now() - trimmed * 60000)
-            } else if (timeAgo.includes('hours') || timeAgo.includes('hour')) {
-                time = new Date(Date.now() - trimmed * 3600000)
-            } else if (timeAgo.includes('days') || timeAgo.includes('day')) {
-                time = new Date(Date.now() - trimmed * 86400000)
-            } else if (timeAgo.includes('year') || timeAgo.includes('years')) {
-                time = new Date(Date.now() - trimmed * 31556952000)
-            } else {
-                time = new Date(timeAgo)
-            }
     
-            return time
-        }
     parseStatus(str: string): MangaStatus {
         let status = MangaStatus.UNKNOWN
         switch (str.toLowerCase()) {
@@ -209,6 +245,7 @@ export abstract class MangaOwl extends Source {
         }
         return status
     }
+
     override async filterUpdatedManga(mangaUpdatesFoundCallback: (updates: MangaUpdates) => void, time: Date, ids: string[]): Promise<void> {
         let page: number = 1;
         let idsFound: string[] | null = [];
@@ -222,13 +259,12 @@ export abstract class MangaOwl extends Source {
                 }
             }
             if (actualIds.length > 0){
-                console.log(`Id is ${actualIds}`)
             mangaUpdatesFoundCallback(createMangaUpdates({
                 ids: actualIds
             }))
             }
             const options = createRequestObject({
-                url: `${MangaOwlBase}/lastest/${page}`,
+                url: `${MangaOwl_Base}/lastest/${page}`,
                 method: 'GET',
             });
             let response = await this.requestManager.schedule(options, 1);
@@ -237,9 +273,10 @@ export abstract class MangaOwl extends Source {
             page++;
         }
     }
+
     CloudFlareError(status: any) {
         if(status == 503) {
-            throw new Error('CLOUDFLARE BYPASS ERROR:\nPlease go to Settings > Sources > \<\The name of this source\> and press Cloudflare Bypass')
+            throw new Error('CLOUDFLARE BYPASS ERROR:\nPlease go to Settings > Sources > MangaOwls and press Cloudflare Bypass or press the Cloud image on the right')
         }
     }
 }
