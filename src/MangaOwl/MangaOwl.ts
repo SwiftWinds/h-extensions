@@ -24,7 +24,7 @@ export const MangaOwlInfo: SourceInfo = {
     description: 'Extension that pulls manga from MangaOwls',
     icon: 'icon.png',
     name: 'MangaOwls',
-    version: '3.0.1',
+    version: '3.0.2',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: MangaOwl_Base,
     contentRating: ContentRating.ADULT,
