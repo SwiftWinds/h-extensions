@@ -2462,28 +2462,7 @@ class MangaOwl extends paperback_extensions_common_1.Source {
             let response = yield this.requestManager.schedule(options, 1);
             this.CloudFlareError(response.status);
             let $ = this.cheerio.load(response.data);
-            var options2 = createRequestObject({
-                url: `${MangaOwl_Base}/popular`,
-                method: 'GET'
-            });
-            var response2 = yield this.requestManager.schedule(options2, 2);
-            const popular = this.cheerio.load(response2.data);
-            this.CloudFlareError(response2.status);
-            var options3 = createRequestObject({
-                url: `${MangaOwl_Base}/new_release`,
-                method: 'GET'
-            });
-            var response3 = yield this.requestManager.schedule(options3, 2);
-            const new_release = this.cheerio.load(response3.data);
-            this.CloudFlareError(response3.status);
-            var options4 = createRequestObject({
-                url: `${MangaOwl_Base}/lastest`,
-                method: 'GET'
-            });
-            var response4 = yield this.requestManager.schedule(options4, 2);
-            const lastest = this.cheerio.load(response4.data);
-            this.CloudFlareError(response4.status);
-            return this.parser.parseHomeSections($, popular, new_release, lastest, sectionCallback, this);
+            return this.parser.parseHomeSections($, sectionCallback, this);
         });
     }
     getViewMoreItems(homepageSectionId, metadata) {
@@ -2699,7 +2678,7 @@ class Parser {
             return String.fromCharCode(dec);
         });
     }
-    parseHomeSections($, popularC, newrelC, latestC, sectionCallback, _source) {
+    parseHomeSections($, sectionCallback, _source) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
         return __awaiter(this, void 0, void 0, function* () {
             const section1 = createHomeSection({ id: '1', title: 'Must Read Today', view_more: false });
@@ -2711,9 +2690,9 @@ class Parser {
             const latest = [];
             const newManga = [];
             const arrMustRead = $('div:nth-child(2) div.comicView').toArray();
-            const arrNewRel = newrelC('div.col-md-2').toArray();
-            const arrLatest = latestC('div.col-md-2').toArray();
-            const arrPopular = popularC('div.col-md-2').toArray();
+            const arrNewRel = $('div.general div.comicView').toArray();
+            const arrLatest = $('div.lastest div.comicView').toArray();
+            const arrPopular = $('div:nth-child(5) div.comicView').toArray();
             for (const obj of arrMustRead) {
                 const id = (_a = $(obj).attr("data-id")) !== null && _a !== void 0 ? _a : '';
                 const title = (_b = $(obj).attr("data-title")) !== null && _b !== void 0 ? _b : '';
@@ -2729,9 +2708,9 @@ class Parser {
             section1.items = latest;
             sectionCallback(section1);
             for (const obj of arrNewRel) {
-                const id = (_e = newrelC(obj).attr("data-id")) !== null && _e !== void 0 ? _e : '';
-                const title = (_f = newrelC(obj).attr("data-title")) !== null && _f !== void 0 ? _f : '';
-                const image = (_g = newrelC('div[data-background-image]', obj).attr('data-background-image')) !== null && _g !== void 0 ? _g : '';
+                const id = (_e = $(obj).attr("data-id")) !== null && _e !== void 0 ? _e : '';
+                const title = (_f = $(obj).attr("data-title")) !== null && _f !== void 0 ? _f : '';
+                const image = (_g = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _g !== void 0 ? _g : '';
                 const subTitle = (_h = $('.tray-item', obj).text().trim()) !== null && _h !== void 0 ? _h : '';
                 popular.push(createMangaTile({
                     id,
@@ -2743,9 +2722,9 @@ class Parser {
             section2.items = popular;
             sectionCallback(section2);
             for (const obj of arrLatest) {
-                const id = (_j = latestC(obj).attr("data-id")) !== null && _j !== void 0 ? _j : '';
-                const title = (_k = latestC(obj).attr("data-title")) !== null && _k !== void 0 ? _k : '';
-                const image = (_l = latestC('div[data-background-image]', obj).attr('data-background-image')) !== null && _l !== void 0 ? _l : '';
+                const id = (_j = $(obj).attr("data-id")) !== null && _j !== void 0 ? _j : '';
+                const title = (_k = $(obj).attr("data-title")) !== null && _k !== void 0 ? _k : '';
+                const image = (_l = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _l !== void 0 ? _l : '';
                 const subTitle = (_m = $('.tray-item', obj).text().trim()) !== null && _m !== void 0 ? _m : '';
                 hot.push(createMangaTile({
                     id,
@@ -2757,9 +2736,9 @@ class Parser {
             section3.items = hot;
             sectionCallback(section3);
             for (const obj of arrPopular) {
-                const id = (_o = popularC(obj).attr("data-id")) !== null && _o !== void 0 ? _o : '';
-                const title = (_p = popularC(obj).attr("data-title")) !== null && _p !== void 0 ? _p : '';
-                const image = (_q = popularC('div[data-background-image]', obj).attr('data-background-image')) !== null && _q !== void 0 ? _q : '';
+                const id = (_o = $(obj).attr("data-id")) !== null && _o !== void 0 ? _o : '';
+                const title = (_p = $(obj).attr("data-title")) !== null && _p !== void 0 ? _p : '';
+                const image = (_q = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _q !== void 0 ? _q : '';
                 const subTitle = (_r = $('.tray-item', obj).text().trim()) !== null && _r !== void 0 ? _r : '';
                 newManga.push(createMangaTile({
                     id,
