@@ -24,7 +24,7 @@ export const MangaOwlInfo: SourceInfo = {
     description: 'Extension that pulls manga from MangaOwls',
     icon: 'icon.png',
     name: 'MangaOwls',
-    version: '3.0.0',
+    version: '3.0.1',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: MangaOwl_Base,
     contentRating: ContentRating.ADULT,
@@ -70,31 +70,7 @@ export abstract class MangaOwl extends Source {
         let response = await this.requestManager.schedule(options, 1);
         this.CloudFlareError(response.status)
         let $ = this.cheerio.load(response.data);
-
-        var options2 = createRequestObject({
-            url: `${MangaOwl_Base}/popular`,
-            method: 'GET'
-        });
-        var response2 = await this.requestManager.schedule(options2, 2)
-        const popular = this.cheerio.load(response2.data)
-        this.CloudFlareError(response2.status)
-
-        var options3 = createRequestObject({
-            url: `${MangaOwl_Base}/new_release`,
-            method: 'GET'
-        });
-        var response3 = await this.requestManager.schedule(options3, 2)
-        const new_release = this.cheerio.load(response3.data)
-        this.CloudFlareError(response3.status)
-
-        var options4 = createRequestObject({
-            url: `${MangaOwl_Base}/lastest`,
-            method: 'GET'
-        });
-        var response4 = await this.requestManager.schedule(options4, 2)
-        const lastest = this.cheerio.load(response4.data)
-        this.CloudFlareError(response4.status)
-        return this.parser.parseHomeSections($,popular,new_release,lastest, sectionCallback, this)
+        return this.parser.parseHomeSections($, sectionCallback, this)
     }
 
     override async getViewMoreItems(homepageSectionId: string, metadata: any): Promise<PagedResults> {

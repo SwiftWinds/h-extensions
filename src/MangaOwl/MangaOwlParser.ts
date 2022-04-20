@@ -17,7 +17,7 @@ export class Parser {
         })
     }
 
-    async parseHomeSections($: CheerioStatic, popularC: CheerioStatic, newrelC: CheerioStatic, latestC: CheerioStatic,sectionCallback: (section: HomeSection) => void, _source: any): Promise<void> {
+    async parseHomeSections($: CheerioStatic,sectionCallback: (section: HomeSection) => void, _source: any): Promise<void> {
         const section1 = createHomeSection({ id: '1', title: 'Must Read Today', view_more: false})
         const section2 = createHomeSection({ id: '2', title: 'New Releases', view_more: true})
         const section3 = createHomeSection({ id: '3', title: 'Latest', view_more: true})
@@ -29,9 +29,9 @@ export class Parser {
         const newManga: MangaTile[] = []
 
         const arrMustRead = $('div:nth-child(2) div.comicView').toArray()
-        const arrNewRel = newrelC('div.col-md-2').toArray()
-        const arrLatest = latestC('div.col-md-2').toArray()
-        const arrPopular = popularC('div.col-md-2').toArray()
+        const arrNewRel = $('div.general div.comicView').toArray()
+        const arrLatest = $('div.lastest div.comicView').toArray()
+        const arrPopular = $('div:nth-child(5) div.comicView').toArray()
 
 
         for (const obj of arrMustRead) {
@@ -52,9 +52,9 @@ export class Parser {
         sectionCallback(section1)
 
         for (const obj of arrNewRel) {
-            const id = newrelC(obj).attr("data-id") ?? ''
-            const title = newrelC(obj).attr("data-title") ?? ''
-            const image = newrelC('div[data-background-image]', obj).attr('data-background-image') ?? ''
+            const id = $(obj).attr("data-id") ?? ''
+            const title = $(obj).attr("data-title") ?? ''
+            const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
             const subTitle = $('.tray-item', obj).text().trim() ?? ''
             popular.push(
                 createMangaTile({
@@ -69,9 +69,9 @@ export class Parser {
         sectionCallback(section2)
 
         for (const obj of arrLatest) {
-            const id = latestC(obj).attr("data-id") ?? ''
-            const title = latestC(obj).attr("data-title") ?? ''
-            const image = latestC('div[data-background-image]', obj).attr('data-background-image') ?? ''
+            const id = $(obj).attr("data-id") ?? ''
+            const title = $(obj).attr("data-title") ?? ''
+            const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
             const subTitle = $('.tray-item', obj).text().trim() ?? ''
             hot.push(
                 createMangaTile({
@@ -86,9 +86,9 @@ export class Parser {
         sectionCallback(section3)
 
         for (const obj of arrPopular) {
-            const id = popularC(obj).attr("data-id") ?? ''
-            const title = popularC(obj).attr("data-title") ?? ''
-            const image = popularC('div[data-background-image]', obj).attr('data-background-image') ?? ''
+            const id = $(obj).attr("data-id") ?? ''
+            const title = $(obj).attr("data-title") ?? ''
+            const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
             const subTitle = $('.tray-item', obj).text().trim() ?? ''
             newManga.push(
                 createMangaTile({
