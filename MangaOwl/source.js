@@ -2417,7 +2417,7 @@ exports.MangaOwlInfo = {
     description: 'Extension that pulls manga from MangaOwls',
     icon: 'icon.png',
     name: 'MangaOwls',
-    version: '3.0.0',
+    version: '3.0.2',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: MangaOwl_Base,
     contentRating: paperback_extensions_common_1.ContentRating.ADULT,
