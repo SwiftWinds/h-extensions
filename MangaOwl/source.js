@@ -2417,7 +2417,7 @@ exports.MangaOwlInfo = {
     description: 'Extension that pulls manga from MangaOwls',
     icon: 'icon.png',
     name: 'MangaOwls',
-    version: '3.0.2',
+    version: '3.0.3',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: MangaOwl_Base,
     contentRating: paperback_extensions_common_1.ContentRating.ADULT,
@@ -2445,12 +2445,28 @@ class MangaOwl extends paperback_extensions_common_1.Source {
         this.requestManager = createRequestManager({
             requestsPerSecond: 3,
             requestTimeout: 30000,
+            interceptor: {
+                interceptRequest: (request) => __awaiter(this, void 0, void 0, function* () {
+                    var _a;
+                    request.headers = Object.assign(Object.assign({}, ((_a = request.headers) !== null && _a !== void 0 ? _a : {})), {
+                        'referer': `${MangaOwl_Base}/`,
+                        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
+                    });
+                    return request;
+                }),
+                interceptResponse: (response) => __awaiter(this, void 0, void 0, function* () {
+                    return response;
+                })
+            }
         });
     }
     getCloudflareBypassRequest() {
         return createRequestObject({
             url: `${MangaOwl_Base}/single/48021`,
             method: "GET",
+            headers: {
+                'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
+            }
         });
     }
     getHomePageSections(sectionCallback) {
