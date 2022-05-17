@@ -2414,10 +2414,10 @@ const helper_1 = require("./helper");
 const MangaOwl_Base = "https://www.mangaowls.com";
 exports.MangaOwlInfo = {
     author: 'xOnlyFadi',
-    description: 'Extension that pulls manga from MangaOwls',
+    description: 'Extension that pulls manga from mangaowls.com',
     icon: 'icon.png',
     name: 'MangaOwls',
-    version: '3.0.3',
+    version: '3.0.4',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: MangaOwl_Base,
     contentRating: paperback_extensions_common_1.ContentRating.ADULT,
@@ -2459,6 +2459,9 @@ class MangaOwl extends paperback_extensions_common_1.Source {
                 })
             }
         });
+    }
+    getMangaShareUrl(mangaId) {
+        return `${MangaOwl_Base}/single/${mangaId}`;
     }
     getCloudflareBypassRequest() {
         return createRequestObject({
