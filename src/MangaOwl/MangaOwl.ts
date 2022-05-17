@@ -23,7 +23,7 @@ const MangaOwl_Base = "https://www.mangaowls.com"
 
 export const MangaOwlInfo: SourceInfo = {
     author: 'xOnlyFadi',
-    description: 'Extension that pulls manga from MangaOwls',
+    description: 'Extension that pulls manga from mangaowls.com',
     icon: 'icon.png',
     name: 'MangaOwls',
     version: '3.0.4',
