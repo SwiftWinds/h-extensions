@@ -4,6 +4,7 @@
   "repositoryName": "xOnlyFadi's H-Extensions (0.6)",
   "description": "xOnlyFadi's H-Extensions for 0.6!",
   "main": "index.js",
+  "homepage": "https://xonlyfadi.github.io/h-extensions/",
   "GITHUB_REPOSITORY": "https://github.com/xOnlyFadi/h-extensions",
   "baseURL": "https://xonlyfadi.github.io/h-extensions/",
   "scripts": {
