@@ -14,14 +14,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Paperback-iOS/extensions-official.git"
+    "url": "git+https://github.com/xOnlyFadi/h-extensions.git"
   },
   "author": "Paperback Community",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/Paperback-iOS/extensions-official/issues"
+    "url": "https://github.com/xOnlyFadi/h-extensions/issues"
   },
-  "homepage": "https://github.com/Paperback-iOS/extensions-official#readme",
   "devDependencies": {
     "@types/chai": "^4.2.21",
     "@types/chai-as-promised": "^7.1.4",
