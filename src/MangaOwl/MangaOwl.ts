@@ -26,7 +26,7 @@ export const MangaOwlInfo: SourceInfo = {
     description: 'Extension that pulls manga from MangaOwls',
     icon: 'icon.png',
     name: 'MangaOwls',
-    version: '3.0.3',
+    version: '3.0.4',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: MangaOwl_Base,
     contentRating: ContentRating.ADULT,
@@ -74,6 +74,10 @@ export abstract class MangaOwl extends Source {
             }
         }
     })
+
+    override getMangaShareUrl(mangaId: string): string {
+        return `${MangaOwl_Base}/single/${mangaId}`
+    }
 
     override getCloudflareBypassRequest() {
             return createRequestObject({
