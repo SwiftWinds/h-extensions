@@ -2208,7 +2208,7 @@ __exportStar(require("./WebViewButton"), exports);
 __exportStar(require("./FormRow"), exports);
 __exportStar(require("./Stepper"), exports);
 
-},{"./Button":12,"./Form":14,"./FormRow":13,"./Header":15,"./InputField":16,"./Label":17,"./Link":18,"./MultilineLabel":19,"./NavigationButton":20,"./OAuthButton":21,"./Section":22,"./Select":23,"./Stepper":24,"./Switch":25,"./WebViewButton":26}],28:[function(require,module,exports){
+},{"./Button":12,"./Form":13,"./FormRow":14,"./Header":15,"./InputField":16,"./Label":17,"./Link":18,"./MultilineLabel":19,"./NavigationButton":20,"./OAuthButton":21,"./Section":22,"./Select":23,"./Stepper":24,"./Switch":25,"./WebViewButton":26}],28:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HomeSectionType = void 0;
@@ -2269,10 +2269,6 @@ var LanguageCode;
 })(LanguageCode = exports.LanguageCode || (exports.LanguageCode = {}));
 
 },{}],30:[function(require,module,exports){
-arguments[4][9][0].apply(exports,arguments)
-},{"dup":9}],31:[function(require,module,exports){
-arguments[4][9][0].apply(exports,arguments)
-},{"dup":9}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MangaStatus = void 0;
@@ -2285,7 +2281,11 @@ var MangaStatus;
     MangaStatus[MangaStatus["HIATUS"] = 4] = "HIATUS";
 })(MangaStatus = exports.MangaStatus || (exports.MangaStatus = {}));
 
-},{}],33:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
+arguments[4][9][0].apply(exports,arguments)
+},{"dup":9}],32:[function(require,module,exports){
+arguments[4][9][0].apply(exports,arguments)
+},{"dup":9}],33:[function(require,module,exports){
 arguments[4][9][0].apply(exports,arguments)
 },{"dup":9}],34:[function(require,module,exports){
 arguments[4][9][0].apply(exports,arguments)
@@ -2395,7 +2395,7 @@ __exportStar(require("./TrackerActionQueue"), exports);
 __exportStar(require("./SearchField"), exports);
 __exportStar(require("./RawData"), exports);
 
-},{"./Chapter":10,"./ChapterDetails":9,"./Constants":11,"./DynamicUI":27,"./HomeSection":28,"./Languages":29,"./Manga":32,"./MangaTile":30,"./MangaUpdate":31,"./PagedResults":33,"./RawData":34,"./RequestHeaders":35,"./RequestInterceptor":36,"./RequestManager":37,"./RequestObject":38,"./ResponseObject":39,"./SearchField":40,"./SearchRequest":41,"./SourceInfo":42,"./SourceManga":43,"./SourceStateManager":44,"./SourceTag":45,"./TagSection":46,"./TrackedManga":48,"./TrackedMangaChapterReadAction":47,"./TrackerActionQueue":49}],51:[function(require,module,exports){
+},{"./Chapter":9,"./ChapterDetails":10,"./Constants":11,"./DynamicUI":27,"./HomeSection":28,"./Languages":29,"./Manga":30,"./MangaTile":31,"./MangaUpdate":32,"./PagedResults":33,"./RawData":34,"./RequestHeaders":35,"./RequestInterceptor":36,"./RequestManager":37,"./RequestObject":38,"./ResponseObject":39,"./SearchField":40,"./SearchRequest":41,"./SourceInfo":42,"./SourceManga":43,"./SourceStateManager":44,"./SourceTag":45,"./TagSection":46,"./TrackedManga":47,"./TrackedMangaChapterReadAction":48,"./TrackerActionQueue":49}],51:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -2417,7 +2417,7 @@ exports.MangaOwlInfo = {
     description: 'Extension that pulls manga from mangaowls.com',
     icon: 'icon.png',
     name: 'MangaOwls',
-    version: '3.0.4',
+    version: '3.0.5',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: MangaOwl_Base,
     contentRating: paperback_extensions_common_1.ContentRating.ADULT,
@@ -2531,7 +2531,7 @@ class MangaOwl extends paperback_extensions_common_1.Source {
             let $ = this.cheerio.load(response.data);
             return [createTagSection({
                     id: "1",
-                    label: "1",
+                    label: "Genres",
                     tags: this.parser.parseTags($)
                 })];
         });
