@@ -26,7 +26,7 @@ export const MangaOwlInfo: SourceInfo = {
     description: 'Extension that pulls manga from mangaowls.com',
     icon: 'icon.png',
     name: 'MangaOwls',
-    version: '3.0.4',
+    version: '3.0.5',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: MangaOwl_Base,
     contentRating: ContentRating.ADULT,
@@ -144,7 +144,7 @@ export abstract class MangaOwl extends Source {
         let $ = this.cheerio.load(response.data);
         return [createTagSection({
             id: "1",
-            label: "1",
+            label: "Genres",
             tags: this.parser.parseTags($)
         })];
     }
