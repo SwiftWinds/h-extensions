@@ -2417,7 +2417,7 @@ exports.MangaOwlInfo = {
     description: 'Extension that pulls manga from mangaowls.com',
     icon: 'icon.png',
     name: 'MangaOwls',
-    version: '3.0.4',
+    version: '3.0.5',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: MangaOwl_Base,
     contentRating: paperback_extensions_common_1.ContentRating.ADULT,
@@ -2531,7 +2531,7 @@ class MangaOwl extends paperback_extensions_common_1.Source {
             let $ = this.cheerio.load(response.data);
             return [createTagSection({
                     id: "1",
-                    label: "1",
+                    label: "Genres",
                     tags: this.parser.parseTags($)
                 })];
         });
