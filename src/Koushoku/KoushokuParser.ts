@@ -32,7 +32,7 @@ export class Parser {
 
         for (const obj of arrMonthly) {
             const id = $("a",obj).attr("href")?.replace(/\/archive\//gi,"") ?? ''
-            const title = $(".title",obj).text().trim() ?? ''
+            const title = $(".title",obj).first().text().trim() ?? ''
             const image = $(source.thumbnailSelector, obj).attr('src') ?? ''
             latest.push(
                 createMangaTile({
@@ -47,7 +47,7 @@ export class Parser {
 
         for (const obj of arrWeekly) {
             const id = $("a",obj).attr("href")?.replace(/\/archive\//gi,"") ?? ''
-            const title = $(".title",obj).text().trim() ?? ''
+            const title = $(".title",obj).first().text().trim() ?? ''
             const image = $(source.thumbnailSelector, obj).attr('src') ?? ''
             popular.push(
                 createMangaTile({
@@ -62,7 +62,7 @@ export class Parser {
 
         for (const obj of arrLatest) {
             const id = $("a",obj).attr("href")?.replace(/\/archive\//gi,"") ?? ''
-            const title = $(".title",obj).text().trim() ?? ''
+            const title = $(".title",obj).first().text().trim() ?? ''
             const image = $(source.thumbnailSelector, obj).attr('src') ?? ''
             hot.push(
                 createMangaTile({
@@ -119,7 +119,7 @@ export class Parser {
         const genres = $(`.metadata .tags a, ${source.magazinesSelector}`).toArray()
         for (const obj of genres) {
             arrayTags.push({
-                id: $(obj)?.attr('href')?.replace("/genres/", "") ?? '',
+                id: $(obj)?.attr('href') ?? '',
                 label: $(obj).text() ?? ''
             })
         }
