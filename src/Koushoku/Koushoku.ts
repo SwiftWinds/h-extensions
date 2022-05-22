@@ -22,7 +22,7 @@ export const KoushokuInfo: SourceInfo = {
     description: 'Extension that pulls manga from Koushoku',
     icon: 'icon.png',
     name: 'Koushoku',
-    version: '1.0.1',
+    version: '1.0.2',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: Koushoku_Base,
     contentRating: ContentRating.ADULT,
@@ -68,7 +68,6 @@ export abstract class Koushoku extends Source {
             method: 'GET'
         });
         let response = await this.requestManager.schedule(options, 1);
-        this.CloudFlareError(response.status)
         let $ = this.cheerio.load(response.data);
         return this.parser.parseHomeSections($, sectionCallback, this)
     }
@@ -107,7 +106,6 @@ export abstract class Koushoku extends Source {
             method: 'GET',
         });
         let response = await this.requestManager.schedule(options, 1);
-        this.CloudFlareError(response.status)
         let $ = this.cheerio.load(response.data);
         return this.parser.parseMangaDetails($, mangaId,this);
     }
@@ -118,7 +116,6 @@ export abstract class Koushoku extends Source {
             method: 'GET'
         });
         let response = await this.requestManager.schedule(options, 1);
-        this.CloudFlareError(response.status)
         let $ = this.cheerio.load(response.data);
         return this.parser.parseChapters($, mangaId, this);
     }
@@ -129,7 +126,6 @@ export abstract class Koushoku extends Source {
             method: 'GET'
         });
         let response = await this.requestManager.schedule(options, 1);
-        this.CloudFlareError(response.status)
         let $ = this.cheerio.load(response.data);
         return this.parser.parseChapterDetails($, mangaId, chapterId)
     }
@@ -145,7 +141,6 @@ export abstract class Koushoku extends Source {
             })
 
             const data = await this.requestManager.schedule(request, 1)
-            this.CloudFlareError(data.status)
             const $ = this.cheerio.load(data.data)
             const manga = this.parser.parseSearchResultsArchive($, this,title)
             return createPagedResults({
@@ -158,7 +153,6 @@ export abstract class Koushoku extends Source {
             method: 'GET',
         })
         const data = await this.requestManager.schedule(request, 2)
-        this.CloudFlareError(data.status)
         const $ = this.cheerio.load(data.data)
         const manga = this.parser.parseSearchResults($, this)
 
@@ -185,11 +179,5 @@ export abstract class Koushoku extends Source {
         query = query.replace(/%20/g, "+");
         return query;
         
-    }
-
-    CloudFlareError(status: any) {
-        if(status == 503) {
-            throw new Error('CLOUDFLARE BYPASS ERROR:\nPlease go to Settings > Sources > Koushoku and press Cloudflare Bypass or press the Cloud image on the right')
-        }
     }
 }
