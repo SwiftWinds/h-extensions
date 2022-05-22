@@ -1864,7 +1864,7 @@ exports.KoushokuInfo = {
     description: 'Extension that pulls manga from Koushoku',
     icon: 'icon.png',
     name: 'Koushoku',
-    version: '1.0.0',
+    version: '1.0.1',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: Koushoku_Base,
     contentRating: paperback_extensions_common_1.ContentRating.ADULT,
@@ -2073,7 +2073,7 @@ class Parser {
             const arrLatest = $('#archives.feed .entries > .entry').toArray();
             for (const obj of arrMonthly) {
                 const id = (_b = (_a = $("a", obj).attr("href")) === null || _a === void 0 ? void 0 : _a.replace(/\/archive\//gi, "")) !== null && _b !== void 0 ? _b : '';
-                const title = (_c = $(".title", obj).text().trim()) !== null && _c !== void 0 ? _c : '';
+                const title = (_c = $(".title", obj).first().text().trim()) !== null && _c !== void 0 ? _c : '';
                 const image = (_d = $(source.thumbnailSelector, obj).attr('src')) !== null && _d !== void 0 ? _d : '';
                 latest.push(createMangaTile({
                     id,
@@ -2085,7 +2085,7 @@ class Parser {
             sectionCallback(section1);
             for (const obj of arrWeekly) {
                 const id = (_f = (_e = $("a", obj).attr("href")) === null || _e === void 0 ? void 0 : _e.replace(/\/archive\//gi, "")) !== null && _f !== void 0 ? _f : '';
-                const title = (_g = $(".title", obj).text().trim()) !== null && _g !== void 0 ? _g : '';
+                const title = (_g = $(".title", obj).first().text().trim()) !== null && _g !== void 0 ? _g : '';
                 const image = (_h = $(source.thumbnailSelector, obj).attr('src')) !== null && _h !== void 0 ? _h : '';
                 popular.push(createMangaTile({
                     id,
@@ -2097,7 +2097,7 @@ class Parser {
             sectionCallback(section2);
             for (const obj of arrLatest) {
                 const id = (_k = (_j = $("a", obj).attr("href")) === null || _j === void 0 ? void 0 : _j.replace(/\/archive\//gi, "")) !== null && _k !== void 0 ? _k : '';
-                const title = (_l = $(".title", obj).text().trim()) !== null && _l !== void 0 ? _l : '';
+                const title = (_l = $(".title", obj).first().text().trim()) !== null && _l !== void 0 ? _l : '';
                 const image = (_m = $(source.thumbnailSelector, obj).attr('src')) !== null && _m !== void 0 ? _m : '';
                 hot.push(createMangaTile({
                     id,
@@ -2143,7 +2143,7 @@ class Parser {
         return chapters;
     }
     parseMangaDetails($, mangaId, source) {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var _a, _b, _c, _d, _e, _f, _g;
         const title = (_a = this.decodeHTMLEntity($('.metadata .title').first().text().trim())) !== null && _a !== void 0 ? _a : '';
         const image = (_b = $(source.thumbnailSelector).attr('src')) !== null && _b !== void 0 ? _b : 'https://paperback.moe/icons/logo-alt.svg';
         let author = (_c = $(".metadata .circles a").text().trim()) !== null && _c !== void 0 ? _c : '';
@@ -2152,8 +2152,8 @@ class Parser {
         const genres = $(`.metadata .tags a, ${source.magazinesSelector}`).toArray();
         for (const obj of genres) {
             arrayTags.push({
-                id: (_g = (_f = (_e = $(obj)) === null || _e === void 0 ? void 0 : _e.attr('href')) === null || _f === void 0 ? void 0 : _f.replace("/genres/", "")) !== null && _g !== void 0 ? _g : '',
-                label: (_h = $(obj).text()) !== null && _h !== void 0 ? _h : ''
+                id: (_f = (_e = $(obj)) === null || _e === void 0 ? void 0 : _e.attr('href')) !== null && _f !== void 0 ? _f : '',
+                label: (_g = $(obj).text()) !== null && _g !== void 0 ? _g : ''
             });
         }
         const tagSections = [createTagSection({ id: '0', label: 'genres', tags: arrayTags.map((x) => createTag(x)) })];
