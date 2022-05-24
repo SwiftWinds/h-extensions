@@ -1864,7 +1864,7 @@ exports.KoushokuInfo = {
     description: 'Extension that pulls manga from Koushoku',
     icon: 'icon.png',
     name: 'Koushoku',
-    version: '1.0.2',
+    version: '1.0.3',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: Koushoku_Base,
     contentRating: paperback_extensions_common_1.ContentRating.ADULT,
@@ -2054,9 +2054,9 @@ class Parser {
             const section1 = createHomeSection({ id: '1', title: 'Weekly Trending', view_more: false });
             const section2 = createHomeSection({ id: '2', title: 'Monthly Trending', view_more: false });
             const section3 = createHomeSection({ id: '3', title: 'Latest', view_more: true });
-            const popular = [];
+            const weekly = [];
             const hot = [];
-            const latest = [];
+            const monhtly = [];
             const arrWeekly = $('#trendings.feed #weekly-trending .entries > .entry').toArray();
             const arrMonthly = $('#trendings.feed #monthly-trending .entries > .entry').toArray();
             const arrLatest = $('#archives.feed .entries > .entry').toArray();
@@ -2064,26 +2064,26 @@ class Parser {
                 const id = (_b = (_a = $("a", obj).attr("href")) === null || _a === void 0 ? void 0 : _a.replace(/\/archive\//gi, "")) !== null && _b !== void 0 ? _b : '';
                 const title = (_c = $(".title", obj).first().text().trim()) !== null && _c !== void 0 ? _c : '';
                 const image = (_d = $(source.thumbnailSelector, obj).attr('src')) !== null && _d !== void 0 ? _d : '';
-                latest.push(createMangaTile({
+                monhtly.push(createMangaTile({
                     id,
                     image,
                     title: createIconText({ text: this.decodeHTMLEntity(title) }),
                 }));
             }
-            section1.items = latest;
-            sectionCallback(section1);
+            section2.items = monhtly;
+            sectionCallback(section2);
             for (const obj of arrWeekly) {
                 const id = (_f = (_e = $("a", obj).attr("href")) === null || _e === void 0 ? void 0 : _e.replace(/\/archive\//gi, "")) !== null && _f !== void 0 ? _f : '';
                 const title = (_g = $(".title", obj).first().text().trim()) !== null && _g !== void 0 ? _g : '';
                 const image = (_h = $(source.thumbnailSelector, obj).attr('src')) !== null && _h !== void 0 ? _h : '';
-                popular.push(createMangaTile({
+                weekly.push(createMangaTile({
                     id,
                     image,
                     title: createIconText({ text: this.decodeHTMLEntity(title) }),
                 }));
             }
-            section2.items = popular;
-            sectionCallback(section2);
+            section1.items = weekly;
+            sectionCallback(section1);
             for (const obj of arrLatest) {
                 const id = (_k = (_j = $("a", obj).attr("href")) === null || _j === void 0 ? void 0 : _j.replace(/\/archive\//gi, "")) !== null && _k !== void 0 ? _k : '';
                 const title = (_l = $(".title", obj).first().text().trim()) !== null && _l !== void 0 ? _l : '';
