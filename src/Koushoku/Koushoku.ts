@@ -22,7 +22,7 @@ export const KoushokuInfo: SourceInfo = {
     description: 'Extension that pulls manga from Koushoku',
     icon: 'icon.png',
     name: 'Koushoku',
-    version: '1.0.2',
+    version: '1.0.3',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: Koushoku_Base,
     contentRating: ContentRating.ADULT,

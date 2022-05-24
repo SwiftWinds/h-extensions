@@ -21,9 +21,9 @@ export class Parser {
         const section2 = createHomeSection({ id: '2', title: 'Monthly Trending', view_more: false})
         const section3 = createHomeSection({ id: '3', title: 'Latest', view_more: true})
 
-        const popular : MangaTile[] = []
+        const weekly : MangaTile[] = []
         const hot     : MangaTile[] = []
-        const latest  : MangaTile[] = []
+        const monhtly  : MangaTile[] = []
 
         const arrWeekly = $('#trendings.feed #weekly-trending .entries > .entry').toArray()
         const arrMonthly = $('#trendings.feed #monthly-trending .entries > .entry').toArray()
@@ -34,7 +34,7 @@ export class Parser {
             const id = $("a",obj).attr("href")?.replace(/\/archive\//gi,"") ?? ''
             const title = $(".title",obj).first().text().trim() ?? ''
             const image = $(source.thumbnailSelector, obj).attr('src') ?? ''
-            latest.push(
+            monhtly.push(
                 createMangaTile({
                     id,
                     image,
@@ -42,14 +42,14 @@ export class Parser {
                 })
             )
         }
-        section1.items = latest
-        sectionCallback(section1)
+        section2.items = monhtly
+        sectionCallback(section2)
 
         for (const obj of arrWeekly) {
             const id = $("a",obj).attr("href")?.replace(/\/archive\//gi,"") ?? ''
             const title = $(".title",obj).first().text().trim() ?? ''
             const image = $(source.thumbnailSelector, obj).attr('src') ?? ''
-            popular.push(
+            weekly.push(
                 createMangaTile({
                     id,
                     image,
@@ -57,8 +57,8 @@ export class Parser {
                 })
             )
         }
-        section2.items = popular
-        sectionCallback(section2)
+        section1.items = weekly
+        sectionCallback(section1)
 
         for (const obj of arrLatest) {
             const id = $("a",obj).attr("href")?.replace(/\/archive\//gi,"") ?? ''
