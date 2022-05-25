@@ -2417,7 +2417,7 @@ exports.MangaOwlInfo = {
     description: 'Extension that pulls manga from mangaowls.com',
     icon: 'icon.png',
     name: 'MangaOwls',
-    version: '3.0.5',
+    version: '3.0.6',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: MangaOwl_Base,
     contentRating: paperback_extensions_common_1.ContentRating.ADULT,
@@ -2442,6 +2442,7 @@ class MangaOwl extends paperback_extensions_common_1.Source {
         super(...arguments);
         this.parser = new MangaOwlParser_1.Parser();
         this.chapterDetailsSelector = "div.item img.owl-lazy";
+        this.baseUrl = MangaOwl_Base;
         this.requestManager = createRequestManager({
             requestsPerSecond: 3,
             requestTimeout: 30000,
@@ -2659,7 +2660,7 @@ class MangaOwl extends paperback_extensions_common_1.Source {
                 });
                 let response = yield this.requestManager.schedule(options, 1);
                 let $ = this.cheerio.load(response.data);
-                idsFound = this.parser.parseTimesFromTiles($, time);
+                idsFound = this.parser.parseTimesFromTiles($, time, this);
                 page++;
             }
         });
@@ -2697,8 +2698,8 @@ class Parser {
             return String.fromCharCode(dec);
         });
     }
-    parseHomeSections($, sectionCallback, _source) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
+    parseHomeSections($, sectionCallback, source) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v;
         return __awaiter(this, void 0, void 0, function* () {
             const section1 = createHomeSection({ id: '1', title: 'Must Read Today', view_more: false });
             const section2 = createHomeSection({ id: '2', title: 'New Releases', view_more: true });
@@ -2713,10 +2714,10 @@ class Parser {
             const arrLatest = $('div.lastest div.comicView').toArray();
             const arrPopular = $('div:nth-child(5) div.comicView').toArray();
             for (const obj of arrMustRead) {
-                const id = (_a = $(obj).attr("data-id")) !== null && _a !== void 0 ? _a : '';
-                const title = (_b = $(obj).attr("data-title")) !== null && _b !== void 0 ? _b : '';
-                const image = (_c = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _c !== void 0 ? _c : '';
-                const subTitle = (_d = $('.tray-item', obj).text().trim()) !== null && _d !== void 0 ? _d : '';
+                const id = (_b = this.idCleaner((_a = $("h6 a", obj).attr('href')) !== null && _a !== void 0 ? _a : '', source)) !== null && _b !== void 0 ? _b : '';
+                const title = (_c = this.decodeHTMLEntity($("h6 a", obj).text().trim())) !== null && _c !== void 0 ? _c : '';
+                const image = (_d = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _d !== void 0 ? _d : '';
+                const subTitle = (_e = $('.tray-item', obj).text().trim()) !== null && _e !== void 0 ? _e : '';
                 latest.push(createMangaTile({
                     id,
                     image,
@@ -2727,10 +2728,10 @@ class Parser {
             section1.items = latest;
             sectionCallback(section1);
             for (const obj of arrNewRel) {
-                const id = (_e = $(obj).attr("data-id")) !== null && _e !== void 0 ? _e : '';
-                const title = (_f = $(obj).attr("data-title")) !== null && _f !== void 0 ? _f : '';
-                const image = (_g = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _g !== void 0 ? _g : '';
-                const subTitle = (_h = $('.tray-item', obj).text().trim()) !== null && _h !== void 0 ? _h : '';
+                const id = (_g = this.idCleaner((_f = $("h6 a", obj).attr('href')) !== null && _f !== void 0 ? _f : '', source)) !== null && _g !== void 0 ? _g : '';
+                const title = (_h = this.decodeHTMLEntity($("h6 a", obj).text().trim())) !== null && _h !== void 0 ? _h : '';
+                const image = (_j = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _j !== void 0 ? _j : '';
+                const subTitle = (_k = $('.tray-item', obj).text().trim()) !== null && _k !== void 0 ? _k : '';
                 popular.push(createMangaTile({
                     id,
                     image,
@@ -2741,10 +2742,10 @@ class Parser {
             section2.items = popular;
             sectionCallback(section2);
             for (const obj of arrLatest) {
-                const id = (_j = $(obj).attr("data-id")) !== null && _j !== void 0 ? _j : '';
-                const title = (_k = $(obj).attr("data-title")) !== null && _k !== void 0 ? _k : '';
-                const image = (_l = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _l !== void 0 ? _l : '';
-                const subTitle = (_m = $('.tray-item', obj).text().trim()) !== null && _m !== void 0 ? _m : '';
+                const id = (_m = this.idCleaner((_l = $("h6 a", obj).attr('href')) !== null && _l !== void 0 ? _l : '', source)) !== null && _m !== void 0 ? _m : '';
+                const title = (_o = this.decodeHTMLEntity($("h6 a", obj).text().trim())) !== null && _o !== void 0 ? _o : '';
+                const image = (_p = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _p !== void 0 ? _p : '';
+                const subTitle = (_q = $('.tray-item', obj).text().trim()) !== null && _q !== void 0 ? _q : '';
                 hot.push(createMangaTile({
                     id,
                     image,
@@ -2755,10 +2756,10 @@ class Parser {
             section3.items = hot;
             sectionCallback(section3);
             for (const obj of arrPopular) {
-                const id = (_o = $(obj).attr("data-id")) !== null && _o !== void 0 ? _o : '';
-                const title = (_p = $(obj).attr("data-title")) !== null && _p !== void 0 ? _p : '';
-                const image = (_q = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _q !== void 0 ? _q : '';
-                const subTitle = (_r = $('.tray-item', obj).text().trim()) !== null && _r !== void 0 ? _r : '';
+                const id = (_s = this.idCleaner((_r = $("h6 a", obj).attr('href')) !== null && _r !== void 0 ? _r : '', source)) !== null && _s !== void 0 ? _s : '';
+                const title = (_t = this.decodeHTMLEntity($("h6 a", obj).text().trim())) !== null && _t !== void 0 ? _t : '';
+                const image = (_u = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _u !== void 0 ? _u : '';
+                const subTitle = (_v = $('.tray-item', obj).text().trim()) !== null && _v !== void 0 ? _v : '';
                 newManga.push(createMangaTile({
                     id,
                     image,
@@ -2936,14 +2937,14 @@ class Parser {
         }
         return genres;
     }
-    parseSearchResults($, _source) {
-        var _a, _b, _c, _d;
+    parseSearchResults($, source) {
+        var _a, _b, _c, _d, _e;
         const results = [];
         for (const obj of $('div.col-md-2').toArray()) {
-            const id = (_a = $(obj).attr("data-id")) !== null && _a !== void 0 ? _a : '';
-            const title = (_b = $(obj).attr("data-title")) !== null && _b !== void 0 ? _b : '';
-            const image = (_c = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _c !== void 0 ? _c : '';
-            const subTitle = (_d = $('.tray-item', obj).text().trim()) !== null && _d !== void 0 ? _d : '';
+            const id = (_b = this.idCleaner((_a = $("h6 a", obj).attr('href')) !== null && _a !== void 0 ? _a : '', source)) !== null && _b !== void 0 ? _b : '';
+            const title = (_c = this.decodeHTMLEntity($("h6 a", obj).text().trim())) !== null && _c !== void 0 ? _c : '';
+            const image = (_d = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _d !== void 0 ? _d : '';
+            const subTitle = (_e = $('.tray-item', obj).text().trim()) !== null && _e !== void 0 ? _e : '';
             if (id) {
                 results.push(createMangaTile({
                     id,
@@ -2955,14 +2956,14 @@ class Parser {
         }
         return results;
     }
-    parseTimesFromTilesResults($) {
-        var _a, _b, _c, _d;
+    parseTimesFromTilesResults($, source) {
+        var _a, _b, _c, _d, _e;
         const results = [];
         for (const obj of $('div.col-md-2').toArray()) {
-            const id = (_a = $(obj).attr("data-id")) !== null && _a !== void 0 ? _a : '';
-            const title = (_b = $(obj).attr("data-title")) !== null && _b !== void 0 ? _b : '';
-            const image = (_c = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _c !== void 0 ? _c : '';
-            const timeneeded = (_d = $(obj).attr("data-chapter-time")) !== null && _d !== void 0 ? _d : "";
+            const id = (_b = this.idCleaner((_a = $("h6 a", obj).attr('href')) !== null && _a !== void 0 ? _a : '', source)) !== null && _b !== void 0 ? _b : '';
+            const title = (_c = this.decodeHTMLEntity($("h6 a", obj).text().trim())) !== null && _c !== void 0 ? _c : '';
+            const image = (_d = $('div[data-background-image]', obj).attr('data-background-image')) !== null && _d !== void 0 ? _d : '';
+            const timeneeded = (_e = $(obj).attr("data-chapter-time")) !== null && _e !== void 0 ? _e : "";
             results.push({
                 id: id,
                 image: image,
@@ -2974,8 +2975,8 @@ class Parser {
         }
         return results;
     }
-    parseTimesFromTiles($, dateTime) {
-        const tiles = this.parseTimesFromTilesResults($);
+    parseTimesFromTiles($, dateTime, source) {
+        const tiles = this.parseTimesFromTilesResults($, source);
         const ids = [];
         for (let i = 0; i < tiles.length; i++) {
             const tile = tiles[i];
@@ -3014,6 +3015,14 @@ class Parser {
             const num = parseInt(numStr, 10);
             return String.fromCharCode(num);
         });
+    }
+    idCleaner(str, source) {
+        const base = source.baseUrl.split('://').pop();
+        str = str.replace(/(https:\/\/|http:\/\/)/, '');
+        str = str.replace(/\/$/, '');
+        str = str.replace(`${base}/`, '');
+        str = str.replace(`/single/`, '');
+        return str;
     }
 }
 exports.Parser = Parser;
