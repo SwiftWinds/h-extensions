@@ -26,7 +26,7 @@ export const MangaOwlInfo: SourceInfo = {
     description: 'Extension that pulls manga from mangaowls.com',
     icon: 'icon.png',
     name: 'MangaOwls',
-    version: '3.0.5',
+    version: '3.0.6',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: MangaOwl_Base,
     contentRating: ContentRating.ADULT,
@@ -51,7 +51,7 @@ export abstract class MangaOwl extends Source {
     private readonly parser: Parser = new Parser();
 
     chapterDetailsSelector: string = "div.item img.owl-lazy"
-
+    baseUrl = MangaOwl_Base
     readonly requestManager = createRequestManager({
         requestsPerSecond: 3,
         requestTimeout: 30000,
@@ -272,7 +272,7 @@ export abstract class MangaOwl extends Source {
             });
             let response = await this.requestManager.schedule(options, 1);
             let $ = this.cheerio.load(response.data);
-            idsFound = this.parser.parseTimesFromTiles($, time);
+            idsFound = this.parser.parseTimesFromTiles($, time,this);
             page++;
         }
     }

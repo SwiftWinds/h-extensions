@@ -17,7 +17,7 @@ export class Parser {
         })
     }
 
-    async parseHomeSections($: CheerioStatic,sectionCallback: (section: HomeSection) => void, _source: any): Promise<void> {
+    async parseHomeSections($: CheerioStatic,sectionCallback: (section: HomeSection) => void, source: any): Promise<void> {
         const section1 = createHomeSection({ id: '1', title: 'Must Read Today', view_more: false})
         const section2 = createHomeSection({ id: '2', title: 'New Releases', view_more: true})
         const section3 = createHomeSection({ id: '3', title: 'Latest', view_more: true})
@@ -35,8 +35,8 @@ export class Parser {
 
 
         for (const obj of arrMustRead) {
-            const id = $(obj).attr("data-id") ?? ''
-            const title = $(obj).attr("data-title") ?? ''
+            const id = this.idCleaner($("h6 a",obj).attr('href') ?? '',source) ?? ''
+            const title = this.decodeHTMLEntity($("h6 a",obj).text().trim()) ?? ''
             const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
             const subTitle = $('.tray-item', obj).text().trim() ?? ''
             latest.push(
@@ -52,8 +52,8 @@ export class Parser {
         sectionCallback(section1)
 
         for (const obj of arrNewRel) {
-            const id = $(obj).attr("data-id") ?? ''
-            const title = $(obj).attr("data-title") ?? ''
+            const id = this.idCleaner($("h6 a",obj).attr('href') ?? '',source) ?? ''
+            const title = this.decodeHTMLEntity($("h6 a",obj).text().trim()) ?? ''
             const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
             const subTitle = $('.tray-item', obj).text().trim() ?? ''
             popular.push(
@@ -69,8 +69,8 @@ export class Parser {
         sectionCallback(section2)
 
         for (const obj of arrLatest) {
-            const id = $(obj).attr("data-id") ?? ''
-            const title = $(obj).attr("data-title") ?? ''
+            const id = this.idCleaner($("h6 a",obj).attr('href') ?? '',source) ?? ''
+            const title = this.decodeHTMLEntity($("h6 a",obj).text().trim()) ?? ''
             const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
             const subTitle = $('.tray-item', obj).text().trim() ?? ''
             hot.push(
@@ -86,8 +86,8 @@ export class Parser {
         sectionCallback(section3)
 
         for (const obj of arrPopular) {
-            const id = $(obj).attr("data-id") ?? ''
-            const title = $(obj).attr("data-title") ?? ''
+            const id = this.idCleaner($("h6 a",obj).attr('href') ?? '',source) ?? ''
+            const title = this.decodeHTMLEntity($("h6 a",obj).text().trim()) ?? ''
             const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
             const subTitle = $('.tray-item', obj).text().trim() ?? ''
             newManga.push(
@@ -269,11 +269,11 @@ export class Parser {
         }
         return genres;
     }
-    parseSearchResults($: CheerioSelector, _source: any): MangaTile[] {
+    parseSearchResults($: CheerioSelector, source: any): MangaTile[] {
         const results: MangaTile[] = []
         for (const obj of $('div.col-md-2').toArray()) {
-            const id = $(obj).attr("data-id") ?? ''
-            const title = $(obj).attr("data-title") ?? ''
+            const id = this.idCleaner($("h6 a",obj).attr('href') ?? '',source) ?? ''
+            const title = this.decodeHTMLEntity($("h6 a",obj).text().trim()) ?? ''
             const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
             const subTitle = $('.tray-item', obj).text().trim() ?? ''
             if(id){
@@ -290,11 +290,11 @@ export class Parser {
         return results
     }
 
-    parseTimesFromTilesResults($: CheerioSelector): MangaTile[] {
+    parseTimesFromTilesResults($: CheerioSelector, source: any): MangaTile[] {
         const results: MangaTile[] = []
         for (const obj of $('div.col-md-2').toArray()) {
-            const id = $(obj).attr("data-id") ?? ''
-            const title = $(obj).attr("data-title") ?? ''
+            const id = this.idCleaner($("h6 a",obj).attr('href') ?? '',source) ?? ''
+            const title = this.decodeHTMLEntity($("h6 a",obj).text().trim()) ?? ''
             const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
             const timeneeded = $(obj).attr("data-chapter-time") ?? ""
             results.push({
@@ -309,8 +309,8 @@ export class Parser {
         return results
     }
 
-    parseTimesFromTiles($: CheerioStatic, dateTime: Date) {
-        const tiles = this.parseTimesFromTilesResults($) 
+    parseTimesFromTiles($: CheerioStatic, dateTime: Date,source:any) {
+        const tiles = this.parseTimesFromTilesResults($,source) 
         const ids: string[] = [];
         for (let i = 0; i < tiles.length; i++) {
             const tile = tiles[i];
@@ -348,5 +348,13 @@ export class Parser {
             const num = parseInt(numStr, 10)
             return String.fromCharCode(num)
         })
+    }
+    idCleaner(str: string, source: any): string {
+        const base = source.baseUrl.split('://').pop()
+        str = str.replace(/(https:\/\/|http:\/\/)/, '')
+        str = str.replace(/\/$/, '')
+        str = str.replace(`${base}/`, '')
+        str = str.replace(`/single/`, '')
+        return str
     }
 }
