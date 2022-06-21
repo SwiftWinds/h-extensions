@@ -138,12 +138,12 @@ export class Parser {
             longStrip: true
         })
     }
-    findTextAndReturnRemainder(target: any, constiable: any){
+    findTextAndReturnRemainder(target: any, constiable: any): string {
         const chopFront = target.substring(target.search(constiable)+constiable.length,target.length)
         const result = chopFront.substring(0,chopFront.search(''))
         return result
     }
-    substringAfterFirst(substring: any, string: any){
+    substringAfterFirst(substring: any, string: any): string {
         const startingIndexOfSubstring = string.indexOf(substring)
         const endIndexOfSubstring = startingIndexOfSubstring + substring.length - 1
         return string.substring(endIndexOfSubstring + 1, string.length)
@@ -187,13 +187,6 @@ export class Parser {
             }))
         }
         return chapters
-    }
-
-    getPart($: CheerioStatic, element: CheerioElement, partsArr: (string | null)[], index: number) {
-        const toAdd = $('span', element).remove().end().text().replace(/\s{2,}/, ' ').trim()
-        if (toAdd) {
-            partsArr[index] = toAdd
-        }
     }
 
     parseMangaDetails($: CheerioStatic, mangaId: string, source: any): Manga {
@@ -308,7 +301,7 @@ export class Parser {
         return results
     }
 
-    parseTimesFromTiles($: CheerioStatic, dateTime: Date,source:any) {
+    parseTimesFromTiles($: CheerioStatic, dateTime: Date,source:any): any {
         const tiles = this.parseTimesFromTilesResults($,source) 
         const ids: string[] = []
         for (let i = 0; i < tiles.length; i++) {
@@ -342,7 +335,7 @@ export class Parser {
             return null
         }
     }
-    encodeText(str: string) {
+    encodeText(str: string): string {
         return str.replace(/&#([0-9]{1,4});/gi, (_, numStr) => {
             const num = parseInt(numStr, 10)
             return String.fromCharCode(num)
