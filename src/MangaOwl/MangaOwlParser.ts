@@ -343,7 +343,7 @@ export class Parser {
         }
     }
     encodeText(str: string) {
-        return str.replace(/&#([0-9]{1,4})/gi, (_, numStr) => {
+        return str.replace(/&#([0-9]{1,4});/gi, (_, numStr) => {
             const num = parseInt(numStr, 10)
             return String.fromCharCode(num)
         })
