@@ -6,13 +6,13 @@ import {Chapter,
     MangaTile, 
     Tag,
     TagSection,
-    MangaStatus} from "paperback-extensions-common";
-import {parse} from "url"
+    MangaStatus} from 'paperback-extensions-common'
+import {parse} from 'url'
 export class Parser {
 
     decodeHTMLEntity(str: string): string {
-        return str.replace(/&#(\d+);/g, function (_match, dec) {
-            return String.fromCharCode(dec);
+        return str.replace(/&#(\d+)/g, (_match, dec) => {
+            return String.fromCharCode(dec)
         })
     }
 
@@ -31,8 +31,8 @@ export class Parser {
 
 
         for (const obj of arrMonthly) {
-            const id = $("a",obj).attr("href")?.replace(/\/archive\//gi,"") ?? ''
-            const title = $(".title",obj).first().text().trim() ?? ''
+            const id = $('a',obj).attr('href')?.replace(/\/archive\//gi,'') ?? ''
+            const title = $('.title',obj).first().text().trim() ?? ''
             const image = $(source.thumbnailSelector, obj).attr('src') ?? ''
             monhtly.push(
                 createMangaTile({
@@ -46,8 +46,8 @@ export class Parser {
         sectionCallback(section2)
 
         for (const obj of arrWeekly) {
-            const id = $("a",obj).attr("href")?.replace(/\/archive\//gi,"") ?? ''
-            const title = $(".title",obj).first().text().trim() ?? ''
+            const id = $('a',obj).attr('href')?.replace(/\/archive\//gi,'') ?? ''
+            const title = $('.title',obj).first().text().trim() ?? ''
             const image = $(source.thumbnailSelector, obj).attr('src') ?? ''
             weekly.push(
                 createMangaTile({
@@ -61,8 +61,8 @@ export class Parser {
         sectionCallback(section1)
 
         for (const obj of arrLatest) {
-            const id = $("a",obj).attr("href")?.replace(/\/archive\//gi,"") ?? ''
-            const title = $(".title",obj).first().text().trim() ?? ''
+            const id = $('a',obj).attr('href')?.replace(/\/archive\//gi,'') ?? ''
+            const title = $('.title',obj).first().text().trim() ?? ''
             const image = $(source.thumbnailSelector, obj).attr('src') ?? ''
             hot.push(
                 createMangaTile({
@@ -77,11 +77,11 @@ export class Parser {
     }
 
     parseChapterDetails($: CheerioSelector, mangaId: string, chapterId: string): ChapterDetails {
-        let pages: string[] = []
-        var totalPages = parseInt($(".total").first().text()) ?? '';
-        var data_id = $('body').attr('data-id')
-        var url = parse(($(".page img").attr("src") ?? '')) ?? '';
-        var origin = `${url.protocol}//${url.host}`
+        const pages: string[] = []
+        const totalPages = parseInt($('.total').first().text()) ?? ''
+        const data_id = $('body').attr('data-id')
+        const url = parse(($('.page img').attr('src') ?? '')) ?? ''
+        const origin = `${url.protocol}//${url.host}`
         console.log(`total is ${totalPages}`)
         for (let i = 0; i < totalPages; i++) {
             pages.push(`${origin}/data/${data_id}/${i+1}.jpg`)
@@ -95,25 +95,25 @@ export class Parser {
     }
 
     parseChapters($: CheerioStatic, mangaId: string, _source: any): Chapter[] {
-        const chapters: Chapter[] = [];
-            var url = $('.metadata .actions .read').attr("href")?.replace(/\/archive\//gi,"") ?? '';
-            var release_date = parseInt($(".metadata .published td:nth-child(2)").attr("data-unix")?? '') * 1000 ?? '';
-            chapters.push(createChapter({
+        const chapters: Chapter[] = []
+        const url = $('.metadata .actions .read').attr('href')?.replace(/\/archive\//gi,'') ?? ''
+        const release_date = parseInt($('.metadata .published td:nth-child(2)').attr('data-unix')?? '') * 1000 ?? ''
+        chapters.push(createChapter({
             id: url, 
             mangaId: mangaId,
             name:  this.decodeHTMLEntity($('.metadata .title').first().text().trim()) ?? '', 
             chapNum: 1,
             time: new Date(release_date),
             langCode: LanguageCode.ENGLISH
-        }));
+        }))
         return chapters
     }
 
     parseMangaDetails($: CheerioStatic, mangaId: string, source: any): Manga {
         const title =  this.decodeHTMLEntity($('.metadata .title').first().text().trim()) ?? ''
         const image = $(source.thumbnailSelector).attr('src') ?? 'https://paperback.moe/icons/logo-alt.svg'
-        let author = $(".metadata .circles a").text().trim() ?? '';
-        let artist = $(".metadata .artists a").text().trim() ?? ''
+        const author = $('.metadata .circles a').text().trim() ?? ''
+        const artist = $('.metadata .artists a').text().trim() ?? ''
         const arrayTags: Tag[] = []
 
         const genres = $(`.metadata .tags a, ${source.magazinesSelector}`).toArray()
@@ -139,10 +139,28 @@ export class Parser {
     parseSearchResults($: CheerioSelector, source: any): MangaTile[] {
         const results: MangaTile[] = []
         for (const obj of $('#archives.feed .entries > .entry').toArray()) {
-            const id = $("a",obj).attr("href")?.replace(/\/archive\//gi,"") ?? ''
-            const title = $(".title",obj).text().trim() ?? ''
+            const id = $('a',obj).attr('href')?.replace(/\/archive\//gi,'') ?? ''
+            const title = $('.title',obj).text().trim() ?? ''
             const image = $(source.thumbnailSelector, obj).attr('src') ?? ''
-            if(id){
+            if (id || title){
+                results.push(
+                    createMangaTile({
+                        id,
+                        image,
+                        title: createIconText({ text: this.decodeHTMLEntity(title) }),
+                    })
+                )
+            }
+        }
+        return results
+    }
+
+    parseSearchResultsArchive($: CheerioSelector, source: any,archiveid: string): MangaTile[] {
+        const results: MangaTile[] = []
+        const id = archiveid ?? ''
+        const title = $('.metadata .title').text().trim() ?? ''
+        const image = $(source.thumbnailSelector).attr('src') ?? ''
+        if (id || title){
             results.push(
                 createMangaTile({
                     id,
@@ -151,51 +169,14 @@ export class Parser {
                 })
             )
         }
-    }
         return results
     }
-
-    parseSearchResultsArchive($: CheerioSelector, source: any,archiveid: string): MangaTile[] {
-        const results: MangaTile[] = []
-            const id = archiveid ?? ''
-            const title = $(".metadata .title").text().trim() ?? ''
-            const image = $(source.thumbnailSelector).attr('src') ?? ''
-            if(id){
-            results.push(
-                createMangaTile({
-                    id,
-                    image,
-                    title: createIconText({ text: this.decodeHTMLEntity(title) }),
-                })
-            )
-     }
-        return results
-    }
-
-    parseTimesFromTilesResults($: CheerioSelector): MangaTile[] {
-        const results: MangaTile[] = []
-        for (const obj of $('div.col-md-2').toArray()) {
-            const id = $(obj).attr("data-id") ?? ''
-            const title = $(obj).attr("data-title") ?? ''
-            const image = $('div[data-background-image]', obj).attr('data-background-image') ?? ''
-            const timeneeded = $(obj).attr("data-chapter-time") ?? ""
-            results.push({
-                    id: id,
-                    image: image,
-                    title: createIconText({ text: this.decodeHTMLEntity(title) }),
-                    primaryText: createIconText({
-                        text: timeneeded 
-                    })
-            })
-    }
-        return results
-    }
-    NextPage($: CheerioSelector) {
-        var nextPage = $('#archives.feed .pagination .next');
+    NextPage($: CheerioSelector): boolean {
+        const nextPage = $('#archives.feed .pagination .next')
         if (nextPage.contents().length !== 0) {
-            return true;
+            return true
         } else {
-            return false;
+            return false
         }
     }
 }

@@ -15,42 +15,42 @@ import {
     MangaUpdates,
     Request,
     Response
-} from "paperback-extensions-common"
+} from 'paperback-extensions-common'
 
-import {Parser} from "./MangaOwlParser";
+import {Parser} from './MangaOwlParser'
 import { URLBuilder } from './helper'
-const MangaOwl_Base = "https://www.mangaowls.com"
+const MangaOwl_Base = 'https://www.mangaowls.com'
 
 export const MangaOwlInfo: SourceInfo = {
     author: 'xOnlyFadi',
     description: 'Extension that pulls manga from mangaowls.com',
     icon: 'icon.png',
     name: 'MangaOwls',
-    version: '3.0.6',
+    version: '3.0.7',
     authorWebsite: 'https://github.com/xOnlyFadi',
     websiteBaseURL: MangaOwl_Base,
     contentRating: ContentRating.ADULT,
     language: LanguageCode.ENGLISH,
     sourceTags: [
         {
-            text: "Notifications",
+            text: 'Notifications',
             type: TagType.GREEN
         },
         {
-            text: "18+",
+            text: '18+',
             type: TagType.YELLOW
         },
         {
-            text: "Cloudflare",
+            text: 'Cloudflare',
             type: TagType.RED
         }
     ]
 }
 
 export abstract class MangaOwl extends Source {
-    private readonly parser: Parser = new Parser();
+    private readonly parser: Parser = new Parser()
 
-    chapterDetailsSelector: string = "div.item img.owl-lazy"
+    chapterDetailsSelector = 'div.item img.owl-lazy'
     baseUrl = MangaOwl_Base
     readonly requestManager = createRequestManager({
         requestsPerSecond: 3,
@@ -62,7 +62,7 @@ export abstract class MangaOwl extends Source {
                     ...(request.headers ?? {}),
                     ...{
                         'referer': `${MangaOwl_Base}/`,
-                        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
+                        'user-agent': 'Mozilla/5.0 (iPhone CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
                     }
                 }
 
@@ -80,23 +80,23 @@ export abstract class MangaOwl extends Source {
     }
 
     override getCloudflareBypassRequest() {
-            return createRequestObject({
+        return createRequestObject({
             url: `${MangaOwl_Base}/single/48021`,
-            method: "GET",
+            method: 'GET',
             headers: {
-                'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
+                'user-agent': 'Mozilla/5.0 (iPhone CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
             }
-        });
+        })
     }
 
     override async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> {
         const options = createRequestObject({
             url: `${MangaOwl_Base}`,
             method: 'GET'
-        });
-        let response = await this.requestManager.schedule(options, 1);
+        })
+        const response = await this.requestManager.schedule(options, 1)
         this.CloudFlareError(response.status)
-        let $ = this.cheerio.load(response.data);
+        const $ = this.cheerio.load(response.data)
         return this.parser.parseHomeSections($, sectionCallback, this)
     }
 
@@ -138,47 +138,47 @@ export abstract class MangaOwl extends Source {
         const options = createRequestObject({
             url: `${MangaOwl_Base}/search/1?search=`,
             method: 'GET'
-        });
-        let response = await this.requestManager.schedule(options, 1);
+        })
+        const response = await this.requestManager.schedule(options, 1)
         this.CloudFlareError(response.status)
-        let $ = this.cheerio.load(response.data);
+        const $ = this.cheerio.load(response.data)
         return [createTagSection({
-            id: "1",
-            label: "Genres",
+            id: '1',
+            label: 'Genres',
             tags: this.parser.parseTags($)
-        })];
+        })]
     }
 
     async getMangaDetails(mangaId: string): Promise<Manga> {
         const options  = createRequestObject({
             url: `${MangaOwl_Base}/single/${mangaId}`,
             method: 'GET',
-        });
-        let response = await this.requestManager.schedule(options, 1);
+        })
+        const response = await this.requestManager.schedule(options, 1)
         this.CloudFlareError(response.status)
-        let $ = this.cheerio.load(response.data);
-        return this.parser.parseMangaDetails($, mangaId,this);
+        const $ = this.cheerio.load(response.data)
+        return this.parser.parseMangaDetails($, mangaId,this)
     }
 
     async getChapters(mangaId: string): Promise<Chapter[]> {
         const options = createRequestObject({
             url: `${MangaOwl_Base}/single/${mangaId}`,
             method: 'GET'
-        });
-        let response = await this.requestManager.schedule(options, 1);
+        })
+        const response = await this.requestManager.schedule(options, 1)
         this.CloudFlareError(response.status)
-        let $ = this.cheerio.load(response.data);
-        return this.parser.parseChapters($, mangaId, this);
+        const $ = this.cheerio.load(response.data)
+        return this.parser.parseChapters($, mangaId, this)
     }
 
     async getChapterDetails(mangaId: string, chapterId: string): Promise<ChapterDetails> {
         const options = createRequestObject({
             url: `${MangaOwl_Base}${chapterId}`,
             method: 'GET'
-        });
-        let response = await this.requestManager.schedule(options, 1);
+        })
+        const response = await this.requestManager.schedule(options, 1)
         this.CloudFlareError(response.status)
-        let $ = this.cheerio.load(response.data);
+        const $ = this.cheerio.load(response.data)
         return this.parser.parseChapterDetails($, mangaId, chapterId, this.chapterDetailsSelector)
     }
 
@@ -204,36 +204,21 @@ export abstract class MangaOwl extends Source {
     constructSearchRequest(page: number, query: SearchRequest): any {
         return createRequestObject({
             url: new URLBuilder(MangaOwl_Base)
-            .addPathComponent('search')
-            .addPathComponent(page.toString())
-            .addQueryParameter('search', encodeURIComponent(query?.title ?? ''))
-            .addQueryParameter('search_field', "12")
-            .addQueryParameter('sort', '4')
-            .addQueryParameter('completed', '2')
-            .addQueryParameter(
-                'genres',
-                query?.includedTags?.map((x: any) => x.id)
-            )
-            .addQueryParameter('chapter_from', '0')
-            .addQueryParameter('chapter_to', '')
-            .buildUrl({ addTrailingSlash: false, includeUndefinedParameters: false }),
+                .addPathComponent('search')
+                .addPathComponent(page.toString())
+                .addQueryParameter('search', encodeURIComponent(query?.title?.replace(/%20/g, '+').replace(/ /g,'+') ?? ''))
+                .addQueryParameter('search_field', '12')
+                .addQueryParameter('sort', '4')
+                .addQueryParameter('completed', '2')
+                .addQueryParameter(
+                    'genres',
+                    query?.includedTags?.map((x: any) => x.id)
+                )
+                .addQueryParameter('chapter_from', '0')
+                .addQueryParameter('chapter_to', '')
+                .buildUrl({ addTrailingSlash: false, includeUndefinedParameters: false }),
             method: 'GET',
         })
-    }
-
-    normalizeSearchQuery(query: any) {
-        var query = query.toLowerCase();
-        query = query.replace(/[àáạảãâầấậẩẫăằắặẳẵ]+/g, "a");
-        query = query.replace(/[èéẹẻẽêềếệểễ]+/g, "e");
-        query = query.replace(/[ìíịỉĩ]+/g, "i");
-        query = query.replace(/[òóọỏõôồốộổỗơờớợởỡ]+/g, "o");
-        query = query.replace(/[ùúụủũưừứựửữ]+/g, "u");
-        query = query.replace(/[ỳýỵỷỹ]+/g, "y");
-        query = query.replace(/[đ]+/g, "d");
-        query = query.replace(/ /g,"+");
-        query = query.replace(/%20/g, "+");
-        return query;
-        
     }
     
     parseStatus(str: string): MangaStatus {
@@ -250,30 +235,30 @@ export abstract class MangaOwl extends Source {
     }
 
     override async filterUpdatedManga(mangaUpdatesFoundCallback: (updates: MangaUpdates) => void, time: Date, ids: string[]): Promise<void> {
-        let page: number = 1;
-        let idsFound: string[] | null = [];
+        let page = 1
+        let idsFound: string[] | null = []
         while (idsFound !== null && ids.length !== 0) {
             const actualIds: string[] = []
             for (let i = 0; i < idsFound.length; i++) {
-                const id = idsFound[i] ?? '';
+                const id = idsFound[i] ?? ''
                 if (ids.includes(id)){
                     actualIds.push(id)
-                    ids.splice(ids.indexOf(id), 1);
+                    ids.splice(ids.indexOf(id), 1)
                 }
             }
             if (actualIds.length > 0){
-            mangaUpdatesFoundCallback(createMangaUpdates({
-                ids: actualIds
-            }))
+                mangaUpdatesFoundCallback(createMangaUpdates({
+                    ids: actualIds
+                }))
             }
             const options = createRequestObject({
                 url: `${MangaOwl_Base}/lastest/${page}`,
                 method: 'GET',
-            });
-            let response = await this.requestManager.schedule(options, 1);
-            let $ = this.cheerio.load(response.data);
-            idsFound = this.parser.parseTimesFromTiles($, time,this);
-            page++;
+            })
+            const response = await this.requestManager.schedule(options, 1)
+            const $ = this.cheerio.load(response.data)
+            idsFound = this.parser.parseTimesFromTiles($, time,this)
+            page++
         }
     }
 
