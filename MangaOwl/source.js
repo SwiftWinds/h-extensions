@@ -2845,12 +2845,6 @@ class Parser {
         }
         return chapters;
     }
-    getPart($, element, partsArr, index) {
-        const toAdd = $('span', element).remove().end().text().replace(/\s{2,}/, ' ').trim();
-        if (toAdd) {
-            partsArr[index] = toAdd;
-        }
-    }
     parseMangaDetails($, mangaId, source) {
         var _a, _b, _c, _d, _e, _f, _g, _h;
         const details = $('div.single_detail');
